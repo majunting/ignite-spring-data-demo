@@ -21,5 +21,6 @@ public final class Constants {
 
     public static final String COUNTRY_CACHE = "Country";
     public static final String CITY_CACHE = "City";
+    public static final String GEOSPATIAL_CACHE = "geospatial";
 
 }

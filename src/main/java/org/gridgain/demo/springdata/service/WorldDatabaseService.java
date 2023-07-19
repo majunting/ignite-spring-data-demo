@@ -18,28 +18,44 @@
 package org.gridgain.demo.springdata.service;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Random;
 import javax.cache.Cache;
+
+import com.vividsolutions.jts.geom.Point;
+import org.apache.ignite.configuration.SqlConfiguration;
+
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.io.ParseException;
+import com.vividsolutions.jts.io.WKTReader;
+import org.apache.ignite.Ignite;
+import org.apache.ignite.IgniteCache;
+import org.apache.ignite.cache.query.SqlQuery;
+import org.apache.ignite.configuration.CacheConfiguration;
 import org.gridgain.demo.springdata.dao.CityRepository;
 import org.gridgain.demo.springdata.dao.CountryRepository;
-import org.gridgain.demo.springdata.model.City;
-import org.gridgain.demo.springdata.model.CityKey;
-import org.gridgain.demo.springdata.model.Country;
-import org.gridgain.demo.springdata.model.CityDTO;
-import org.gridgain.demo.springdata.model.CountryDTO;
+import org.gridgain.demo.springdata.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import static org.gridgain.demo.springdata.config.Constants.GEOSPATIAL_CACHE;
+
 @Service
 public class WorldDatabaseService {
-    @Autowired CountryRepository countryDao;
+    @Autowired
+    CountryRepository countryDao;
 
-    @Autowired CityRepository cityDao;
+    @Autowired
+    CityRepository cityDao;
+
+    @Autowired
+    Ignite ignite;
 
     public List<CountryDTO> getCountriesByPopulation(int population) {
         List<CountryDTO> countries = new ArrayList<>();
 
-        for (Cache.Entry<String, Country> entry: countryDao.findByPopulationGreaterThanEqualOrderByPopulationDesc(population))
+        for (Cache.Entry<String, Country> entry : countryDao.findByPopulationGreaterThanEqualOrderByPopulationDesc(population))
             countries.add(new CountryDTO(entry.getKey(), entry.getValue()));
 
         return countries;
@@ -48,7 +64,7 @@ public class WorldDatabaseService {
     public List<CityDTO> getCitiesByPopulation(int population) {
         List<CityDTO> cities = new ArrayList<>();
 
-        for (Cache.Entry<CityKey, City> entry: cityDao.findAllByPopulationGreaterThanEqualOrderByPopulation(population))
+        for (Cache.Entry<CityKey, City> entry : cityDao.findAllByPopulationGreaterThanEqualOrderByPopulation(population))
             cities.add(new CityDTO(entry.getKey(), entry.getValue()));
 
         return cities;
@@ -66,5 +82,40 @@ public class WorldDatabaseService {
         cityDao.save(entry.getKey(), entry.getValue());
 
         return new CityDTO(entry.getKey(), entry.getValue());
+    }
+
+    public void testGeospatialService() throws ParseException {
+        CacheConfiguration<Integer, GeospatialPoint> cc = new CacheConfiguration<>(GEOSPATIAL_CACHE);
+//        CacheConfiguration<Integer, Geometry> cc = new CacheConfiguration<>("GEOMETRY");
+        cc.setIndexedTypes(Integer.class, GeospatialPoint.class);
+
+        IgniteCache<Integer, GeospatialPoint> igniteCache = ignite.getOrCreateCache(cc).withKeepBinary();
+        Random rnd = new Random();
+
+        WKTReader r = new WKTReader();
+        // Adding geometry points into the cache.
+        for (int i = 0; i < 1000; i++) {
+            int x = rnd.nextInt(10000);
+            int y = rnd.nextInt(10000);
+
+            Geometry geo = r.read("POINT(" + x + " " + y + ")");
+
+            igniteCache.put(i, new GeospatialPoint(i, geo));
+//            igniteCache.put(i, geo);
+            if (i % 100 == 0) {
+                System.out.println("lol");
+                System.out.println(geo.toString());
+            }
+        }
+        SqlQuery<Integer, GeospatialPoint> query = new SqlQuery<>(GeospatialPoint.class, "coords && ?");
+        for (int i = 0; i < 10; i++) {
+            Geometry cond = r.read("POLYGON((0 0, 0 " + rnd.nextInt(10000) + ", " +
+                    rnd.nextInt(10000) + " " + rnd.nextInt(10000) + ", " +
+                    rnd.nextInt(10000) + " 0, 0 0))");
+            query.setArgs(cond);
+            Collection<Cache.Entry<Integer, GeospatialPoint>> entries = igniteCache.query(query).getAll();
+            System.out.println("Fetched points [cond=" + cond + ", cnt=" + entries.size() + ']');
+        }
+
     }
 }

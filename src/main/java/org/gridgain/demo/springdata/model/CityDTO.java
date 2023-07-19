@@ -17,6 +17,8 @@
 
 package org.gridgain.demo.springdata.model;
 
+import com.vividsolutions.jts.geom.Geometry;
+
 public class CityDTO {
     private int id;
 
@@ -28,6 +30,8 @@ public class CityDTO {
 
     private int population;
 
+    private Geometry geometryPoint;
+
     public CityDTO() {
     }
 
@@ -37,6 +41,7 @@ public class CityDTO {
         this.name = value.getName();
         this.district = value.getDistrict();
         this.population = value.getPopulation();
+        this.geometryPoint = value.getGeometryPoint();
     }
 
     public int getId() {
@@ -57,5 +62,9 @@ public class CityDTO {
 
     public int getPopulation() {
         return population;
+    }
+
+    public Geometry getGeometryPoint() {
+        return geometryPoint;
     }
 }

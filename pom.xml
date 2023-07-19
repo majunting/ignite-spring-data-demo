@@ -18,8 +18,14 @@
     <name>ignite-spring-data-demo</name>
     <description>Demo project for Spring Data, Spring Boot and Apache Ignite</description>
 
-	<properties>
-		<java.version>11</java.version>
+    <repositories>
+        <repository>
+            <id>GridGain External Repository</id>
+            <url>http://www.gridgainsystems.com/nexus/content/repositories/external</url>
+        </repository>
+    </repositories>
+    <properties>
+        <java.version>11</java.version>
 
         <ignite.version>2.14.0</ignite.version>
         <ignite-autoconfigure.version>1.0.0</ignite-autoconfigure.version>
@@ -30,7 +36,7 @@
         Unsupported connection setting "MULTI_THREADED" [90113-200]
         -->
         <h2.version>1.4.197</h2.version>
-	</properties>
+    </properties>
 
     <dependencies>
 
@@ -83,6 +89,17 @@
             </exclusions>
         </dependency>
 
+        <dependency>
+            <groupId>org.apache.ignite</groupId>
+            <artifactId>ignite-geospatial</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/com.vividsolutions/jts -->
+        <dependency>
+            <groupId>com.vividsolutions</groupId>
+            <artifactId>jts</artifactId>
+            <version>1.13</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -93,5 +110,21 @@
             </plugin>
         </plugins>
     </build>
+
+<!--    <property name="discoverySpi">-->
+<!--        <bean class="org.apache.ignite.spi.discovery.tcp.TcpDiscoverySpi">-->
+<!--            <property name="ipFinder">-->
+<!--                <bean class="org.apache.ignite.spi.discovery.tcp.ipfinder.vm.TcpDiscoveryVmIpFinder">-->
+<!--                    <property name="addresses">-->
+<!--                        <list>-->
+<!--                            <value>host1.example.com</value>-->
+<!--                            <value>host2.example.com</value>-->
+<!--                            <value>host3.example.com</value>-->
+<!--                        </list>-->
+<!--                    </property>-->
+<!--                </bean>-->
+<!--            </property>-->
+<!--        </bean>-->
+<!--    </property>-->
 
 </project>

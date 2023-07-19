@@ -18,6 +18,8 @@
 package org.gridgain.demo.springdata.controller;
 
 import java.util.List;
+
+import com.vividsolutions.jts.io.ParseException;
 import org.gridgain.demo.springdata.model.CityDTO;
 import org.gridgain.demo.springdata.model.CountryDTO;
 import org.gridgain.demo.springdata.service.WorldDatabaseService;
@@ -35,22 +37,31 @@ public class WorldDatabaseController {
 
     @GetMapping("/api/countries")
     public List<CountryDTO> getCountriesByPopulation(@RequestParam (value = "population", required = true) int population) {
+        System.out.println("getCountriesByPopulation");
         return service.getCountriesByPopulation(population);
     }
 
     @GetMapping("/api/cities")
     public List<CityDTO> getCitiesByPopulation(@RequestParam (value = "population", required = true) int population) {
+        System.out.println("getCitiesByPopulation");
         return service.getCitiesByPopulation(population);
     }
 
     @GetMapping("/api/cities/mostPopulated")
     public List<List<?>> getMostPopulatedCities(@RequestParam (value = "limit", required = false) Integer limit) {
+        System.out.println("getMostPopulatedCities");
         return service.getMostPopulatedCities(limit);
     }
 
     @PutMapping("/api/cities/{id}")
     public CityDTO updateCityPopulation(@PathVariable Integer id, @RequestBody CityDTO cityDTO) {
+        System.out.println("updateCityPopulation");
         return service.updateCityPopulation(id, cityDTO.getPopulation());
     }
 
+    @GetMapping("/test/geospatial")
+    public int testGeospatial() throws ParseException {
+        service.testGeospatialService();
+        return 1;
+    }
 }

@@ -17,12 +17,17 @@
 
 package org.gridgain.demo.springdata.model;
 
+
+import com.vividsolutions.jts.geom.Geometry;
+
 public class City {
     private String name;
 
     private String district;
 
     private int population;
+
+    private Geometry geometryPoint;
 
     public String getName() {
         return name;
@@ -46,5 +51,13 @@ public class City {
 
     public void setPopulation(int population) {
         this.population = population;
+    }
+
+    public Geometry getGeometryPoint() {
+        return geometryPoint;
+    }
+    
+    public void setGeometryPoint(Geometry geometryPoint) {
+        this.geometryPoint = geometryPoint;
     }
 }

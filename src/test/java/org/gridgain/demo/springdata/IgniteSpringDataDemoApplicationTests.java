@@ -17,6 +17,9 @@
 
 package org.gridgain.demo.springdata;
 
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.io.ParseException;
+import com.vividsolutions.jts.io.WKTReader;
 import org.apache.ignite.Ignite;
 import org.apache.ignite.configuration.CacheConfiguration;
 import org.apache.ignite.springframework.boot.autoconfigure.IgniteConfigurer;
@@ -41,8 +44,11 @@ class IgniteSpringDataDemoApplicationTests {
     Ignite ignite;
 
     @Test
-    void contextLoads() {
+    void contextLoads() throws ParseException {
         // just make sure that application is able to start
+        WKTReader r = new WKTReader();
+        Geometry geo = r.read("POINT(100 100)");
+        System.out.println(geo.toString());
         assertTrue(ignite.cluster().nodes().size() > 0, "Cluster topology is empty");
     }
 
